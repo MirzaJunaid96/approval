@@ -3,8 +3,7 @@ name: manual-trigger
 on:
   issues:
     types:
-      - opened
-  workflow_dispatch:
+      - edited
 permissions:
   issues: write
   contents: read
