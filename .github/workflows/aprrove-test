@@ -1,10 +1,11 @@
 name: manual-trigger
 
 on:
-  issues:
+  - issues:
+  - push:
+  - workflow_dispatch:
     types:
       - opened
-  workflow_dispatch:
     inputs:
       environment:
         description: 'Environment to Deploy on'
