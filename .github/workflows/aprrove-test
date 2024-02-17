@@ -35,12 +35,3 @@ jobs:
        
     - name: Deploy to environment
       run: echo "Deploying to ${{ github.event.inputs.environment }} environment"
-
-    - name: Deploy to environment
-      run: echo "Deploying to ${{ github.event.inputs.environment }} environment"
-
-    - name: Deploy to environment
-      run: echo "Deploying to ${{ github.event.inputs.environment }} environment"
-
-    - name: Deploy to environment
-      run: echo "Deploying to ${{ github.event.inputs.environment }} environment"  
