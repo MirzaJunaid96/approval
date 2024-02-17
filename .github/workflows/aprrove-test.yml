@@ -4,7 +4,12 @@ on:
   issues:
     types:
       - closed
-  workflow_dispatch:    
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to Deploy on'
+        required: true
+        type: environment
 
 jobs:
   hello_world:
