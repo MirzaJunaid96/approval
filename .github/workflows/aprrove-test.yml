@@ -1,9 +1,14 @@
 name: HelloWorldPipeline
 
 on:
-  issues:
-    types:
-      - closed
+  issues: 
+    inputs:
+     environment:
+        description: 'Environment to Deploy on'
+        required: true
+     types:
+       - closed
+       - environment
 
 jobs:
   hello_world:
