@@ -1,21 +1,18 @@
 name: HelloWorldPipeline
 
 on:
-  issues: 
-    inputs:
-     environment:
-        description: 'Environment to Deploy on'
-        required: true
-     types:
-       - closed
-       - environment
+  issues:
+    types:
+      - closed
 
 jobs:
   hello_world:
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Print Hello, World!
-      run: echo "Hello, World!"
+      run: echo "Hello, World! Deploying to $ENVIRONMENT"
