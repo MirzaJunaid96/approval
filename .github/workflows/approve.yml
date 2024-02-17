@@ -5,6 +5,7 @@ on:
     types:
       - review_requested
       - review
+      - closed
   workflow_dispatch:
 
 jobs:
