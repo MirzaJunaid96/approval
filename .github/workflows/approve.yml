@@ -6,7 +6,6 @@ on:
       - review_requested
       - review
       - closed
-  workflow_dispatch:
 
 jobs:
   build:
