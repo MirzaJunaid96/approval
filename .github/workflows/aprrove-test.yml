@@ -1,12 +1,16 @@
 name: manual-trigger
 
 on:
-  workflow_dispatch:
+  issues:
     types:
       - opened
-  issues:
-  push:
-  
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to Deploy on'
+        required: true
+        type: environment
+
 permissions:
   issues: write
   contents: read
@@ -17,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Manual Approval
-      if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues'
       uses: trstringer/manual-approval@v1
       with:
         secret: ${{ secrets.GITHUB_TOKEN }}
@@ -35,5 +38,4 @@ jobs:
           echo "Approved Issue Body: $ISSUE_BODY"
        
     - name: Deploy to environment
-      if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
       run: echo "Deploying to ${{ github.event.inputs.environment }} environment"
