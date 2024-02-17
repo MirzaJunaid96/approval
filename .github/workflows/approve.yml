@@ -1,0 +1,43 @@
+name: Approved PR Workflow!
+
+on:
+  pull_request:
+    types:
+      - review_requested
+      - review
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14
+
+    - name: Check if PR is approved or manual trigger
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "Manual trigger. Running the workflow..."
+        else
+          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
+          REVIEWS=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER/reviews")
+
+          APPROVED_REVIEWS=$(echo "$REVIEWS" | jq '.[] | select(.state == "APPROVED")')
+
+          if [ -n "$APPROVED_REVIEWS" ]; then
+            echo "PR is approved. Running the workflow..."
+          else
+            echo "PR is not approved. Skipping the workflow."
+            exit 78
+          fi
+        fi
+
+    - name: Install dependencies
+      run: npm install
