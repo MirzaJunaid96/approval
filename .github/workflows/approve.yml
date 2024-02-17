@@ -1,4 +1,4 @@
-name: Approved PR Workflow!
+name: Approved PR Workflow
 
 on:
   pull_request:
