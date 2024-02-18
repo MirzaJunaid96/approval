@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment Issue
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '14'
       - run: |
           const github = require('@actions/github');
           const core = require('@actions/core');
