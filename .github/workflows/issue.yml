@@ -10,13 +10,14 @@ on:
         description: 'Environment to Deploy on'
         required: true
         type: environment
+  push:      
 
 jobs:
   create_issue:
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment Issue
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v1
         with:
           node-version: '16'
       - run: |
