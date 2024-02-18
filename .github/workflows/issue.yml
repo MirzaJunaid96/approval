@@ -15,6 +15,17 @@ jobs:
   create_issue:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install @actions/github github-script
+
     - name: Create Deployment Issue
       run: |
         const github = require('@actions/github');
@@ -26,14 +37,18 @@ jobs:
 
         const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
-        const newIssue = await octokit.issues.create({
-          owner: 'MirzaJunaid96', // Replace with your GitHub username
-          repo: 'pipeline-approval', // Replace with your repository name
-          title: issueTitle,
-          body: issueBody,
-        });
+        try {
+          const newIssue = await octokit.issues.create({
+            owner: 'MirzaJunaid96', // Replace with your GitHub username
+            repo: 'pipeline-approval', // Replace with your repository name
+            title: issueTitle,
+            body: issueBody,
+          });
 
-        core.setOutput('issue_number', newIssue.data.number);
+          core.setOutput('issue_number', newIssue.data.number);
+        } catch (error) {
+          core.setFailed(`Error creating issue: ${error.message}`);
+        }
 
   deploy:
     needs: create_issue
