@@ -15,11 +15,15 @@ on:
 jobs:
   create_issue:
     runs-on: ubuntu-latest
-    steps:
-      - name: Create Deployment Issue
-        uses: actions/setup-node@v3
-        with:
-          node-version: '14'
+     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 14
+
       - run: |
           const github = require('@actions/github');
           const core = require('@actions/core');
