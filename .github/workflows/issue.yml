@@ -15,40 +15,32 @@ jobs:
   create_issue:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Create Deployment Issue
+        uses: actions/setup-node@v16
+        with:
+          node-version: '16'
+      - run: |
+          const github = require('@actions/github');
+          const core = require('@actions/core');
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '16'
+          const environment = core.getInput('environment');
+          const issueTitle = `Deployment to ${environment}`;
+          const issueBody = `Please review and close this issue to trigger deployment to ${environment}.`;
 
-    - name: Install dependencies
-      run: npm install @actions/github github-script
+          const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
 
-    - name: Create Deployment Issue
-      run: |
-        const github = require('@actions/github');
-        const core = require('@actions/core');
+          try {
+            const newIssue = await octokit.issues.create({
+              owner: 'MirzaJunaid96', // Replace with your GitHub username
+              repo: 'pipeline-approval', // Replace with your repository name
+              title: issueTitle,
+              body: issueBody,
+            });
 
-        const environment = core.getInput('environment');
-        const issueTitle = `Deployment to ${environment}`;
-        const issueBody = `Please review and close this issue to trigger deployment to ${environment}.`;
-
-        const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-
-        try {
-          const newIssue = await octokit.issues.create({
-            owner: 'MirzaJunaid96', // Replace with your GitHub username
-            repo: 'pipeline-approval', // Replace with your repository name
-            title: issueTitle,
-            body: issueBody,
-          });
-
-          core.setOutput('issue_number', newIssue.data.number);
-        } catch (error) {
-          core.setFailed(`Error creating issue: ${error.message}`);
-        }
+            core.setOutput('issue_number', newIssue.data.number);
+          } catch (error) {
+            core.setFailed(`Error creating issue: ${error.message}`);
+          }
 
   deploy:
     needs: create_issue
@@ -56,8 +48,8 @@ jobs:
     env:
       ENVIRONMENT: ${{ github.event.inputs.environment }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Print Hello, World!
-      run: echo "Hello, World! Deploying to $ENVIRONMENT"
+      - name: Print Hello, World!
+        run: echo "Hello, World! Deploying to $ENVIRONMENT"
