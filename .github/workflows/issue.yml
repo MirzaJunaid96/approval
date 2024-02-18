@@ -24,10 +24,10 @@ jobs:
           const issueBody = `Please review and close this issue to trigger deployment to ${environment}.`;
 
           const newIssue = await github.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: issueTitle,
-            body: issueBody,
+            owner: MirzaJunaid96,
+            repo: pipeline-approval,
+            title: opend,
+            body: issueTested,
           });
 
           core.setOutput('issue_number', newIssue.data.number);
