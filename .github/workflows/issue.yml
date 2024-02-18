@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Deployment Issue
-        uses: actions/setup-node@v16
+        uses: actions/setup-node@v2
         with:
           node-version: '16'
       - run: |
