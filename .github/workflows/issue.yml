@@ -1,0 +1,45 @@
+name: issue and workflow
+
+on:
+  issues:
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to Deploy on'
+        required: true
+        type: environment
+
+jobs:
+  create_issue:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create Deployment Issue
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const environment = '${{ github.event.inputs.environment }}';
+          const issueTitle = `Deployment to ${environment}`;
+          const issueBody = `Please review and close this issue to trigger deployment to ${environment}.`;
+
+          const newIssue = await github.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: issueTitle,
+            body: issueBody,
+          });
+
+          core.setOutput('issue_number', newIssue.data.number);
+
+  deploy:
+    needs: create_issue
+    runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Print Hello, World!
+      run: echo "Hello, World! Deploying to $ENVIRONMENT"
