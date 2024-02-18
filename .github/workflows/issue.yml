@@ -1,57 +1,28 @@
-name: issue and workflow
+name: Environment Pipeline Trigger
 
 on:
   issues:
     types:
       - closed
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to Deploy on'
-        required: true
-        type: environment
-  push:      
 
 jobs:
-  create_issue:
+  trigger_pipeline:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
+      - name: Check if issue is closed
+        id: check_issue
+        run: echo "IS_ISSUE_CLOSED=${{ github.event_name == 'issues' && github.event.action == 'closed' }}" >> $GITHUB_ENV
 
-      - run: |
-          const github = require('@actions/github');
-          const core = require('@actions/core');
+      - name: Check environment label
+        id: check_environment
+        if: env.IS_ISSUE_CLOSED == 'true'
+        run: echo "ENVIRONMENT=${{ join(github.event.issue.labels.*.name, ',') }}" >> $GITHUB_ENV
 
-          const environment = core.getInput('environment');
-          const issueTitle = `Deployment to ${environment}`;
-          const issueBody = `Please review and close this issue to trigger deployment to ${environment}.`;
+      - name: Trigger pipeline for Stage
+        if: env.IS_ISSUE_CLOSED == 'true' && env.ENVIRONMENT == 'stage'
+        run: |
+          # Your pipeline trigger code for the 'stage' environment goes here
+          echo "Pipeline for Stage Environment triggered."
 
-          const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-
-          try {
-            const newIssue = await octokit.issues.create({
-              owner: 'MirzaJunaid96', // Replace with your GitHub username
-              repo: 'pipeline-approval', // Replace with your repository name
-              title: issueTitle,
-              body: issueBody,
-            });
-
-            core.setOutput('issue_number', newIssue.data.number);
-          } catch (error) {
-            core.setFailed(`Error creating issue: ${error.message}`);
-          }
-
-  deploy:
-    needs: create_issue
-    runs-on: ubuntu-latest
-    env:
-      ENVIRONMENT: ${{ github.event.inputs.environment }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Print Hello, World!
-        run: echo "Hello, World! Deploying to $ENVIRONMENT"
+      # Add similar steps for other environments (dev, qa) as needed
