@@ -13,12 +13,12 @@ jobs:
       approved: ${{ steps.check-approval.outputs.approved }}
 
     steps:
-      - name: Get GitHub App Installation Token
-        id: get_installation_token
-        uses: tibdex/github-app-token@v1
-        with:
-          app_id: 170284
-          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      # - name: Get GitHub App Installation Token
+      #   id: get_installation_token
+      #   uses: tibdex/github-app-token@v1
+      #   with:
+      #     app_id: 170284
+      #     private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: ApproveOps - Check Approval
         id: check-approval
