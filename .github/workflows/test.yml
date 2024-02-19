@@ -1,4 +1,4 @@
-name: Issue approval Test
+name: Approval Test
 
 on:
   issues:
@@ -27,10 +27,10 @@ jobs:
           comment_body=$(jq -r .comment.body "${{ github.event_path }}")
           echo "Comment Body: $comment_body"
 
-          if [[ "$comment_body" =~ \bapprove\b ]]; then
+          if [[ "$comment_body" == *"approve"* ]]; then
             echo "Pipeline approved. Running the pipeline..."
             # Add your pipeline execution command here
-          elif [[ "$comment_body" =~ \bdeny\b ]]; then
+          elif [[ "$comment_body" == *"deny"* ]]; then
             echo "Pipeline denied. Failing the pipeline."
             exit 1
           else
@@ -63,7 +63,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-         node-version: 14
+          node-version: 14
 
       - name: Install dependencies
         run: npm install
