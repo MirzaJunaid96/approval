@@ -1,61 +1,52 @@
-name: test approval
-
+name: ApproveOps
 on:
-  issues:
-    types:
-      - closed
-    branches:
-      - main    
+  issue_comment:
+    types: [created]
 
 jobs:
-  run_pipeline:
+  approveops:
     runs-on: ubuntu-latest
+    # only run the job if the comment body contains the command proper command
+    if: contains(github.event.comment.body, '/do-stuff')
+    # optional - if we want to use the output to determine if we run the migration job or not
+    outputs: 
+      approved: ${{ steps.check-approval.outputs.approved }}
 
     steps:
-      - name: Check if the comment is on a closed issue
-        env:
-          VARS_CONTEXT: ${{ toJson(vars) }}
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo "$GITHUB_CONTEXT"
-          comment_body=$(jq -r .comment.body "${{ github.event_path }}")
-          echo $comment_body
-          if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "closed" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
-            echo "Issue is closed. Checking comment for approval or denial..."
-          else
-            echo "Not a relevant event. Exiting..."
-            exit 0
-          fi
-      - name: Check comment for approval or denial
-        run: |
-          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
-          last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
-          echo "Last Comment Body: $last_comment_body"
-          
-          if echo "$last_comment_body" | grep -q "/approve"; then
-            echo "Pipeline approved. Running the pipeline..."
-            # Add your pipeline execution command here
-          elif [[ "$last_comment_body" == "deny" ]]; then
-            echo "Pipeline denied. Failing the pipeline."
-            exit 1
-          else
-            echo "No action required for this comment."
-            exit 0
-          fi
+    # get the app's installation token (required for v2)
+    - uses: tibdex/github-app-token@v1
+      id: get_installation_token
+      with:
+        app_id: 170284
+        private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
+    # V2 - GitHub APp logic pulled out so you can use different action or PAT
+    - name: ApproveOps - ApproveOps in IssueOps
+      uses: joshjohanning/approveops@v2
+      id: check-approval
+      with:
+        approve-command: '/approved'
+        token: ${{ steps.get_installation_token.outputs.token }} # use a github app token or a PAT
+        team-name: ${{ env.approver_team_name }} # The name of the team in GitHub to check for the approval command; e.g.: approver-team
+        fail-if-approval-not-found: true # Fail the action (show the action run as red) if the command is not found in the comments from someone in the approver team"
+        post-successful-approval-comment: true # Boolean whether to post successful approval comment
+        successful-approval-comment: ':tada:  You were able to run the workflow because someone left an approval in the comments!! :tada:' # Comment to post if there is an approval is found
 
+    # V1 - GitHub App logic baked in
+    #   - name: ApproveOps - ApproveOps in IssueOps
+    #     uses: joshjohanning/ApproveOps@v1
+    #     id: check-approval
+    #     with:
+    #       app-id: 170284
+    #       app-private-key: ${{ secrets.PRIVATE_KEY }}
+    #       team-name: approver-team
+    #       fail-if-approval-not-found: false
 
-      # - name: Run Pipeline
-      #   if: success()  # Only run if the comment was processed successfully
-      #   run: |
-      #     # Your pipeline steps go here
-      - name: Checkout code
-        uses: actions/checkout@v2
+  migration:
+    runs-on: ubuntu-latest
+    needs: approveops
+    # optional - if we want to use the output to determine if we run the migration job or not
+    if: ${{ steps.approveops.outputs.approved == 'true' }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-         node-version: 14
-
-      - name: Install dependencies
-        run: npm install
+    steps:
+      - run: echo "run migration!"
