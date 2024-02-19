@@ -1,7 +1,7 @@
 name: Issue approval Pipeline
 
 on:
-  issues:
+  issue_comment:
     types:
       - closed
 
