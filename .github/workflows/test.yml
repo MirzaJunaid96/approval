@@ -4,9 +4,9 @@ on:
   issues:
     types:
       - closed
-  issue_comment:
-    types:
-      - created
+  # issue_comment:
+  #   types:
+  #     - created
 
 jobs:
   run_pipeline:
