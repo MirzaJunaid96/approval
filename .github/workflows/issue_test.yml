@@ -1,9 +1,9 @@
 name: Issue approval Test
 
-# on:
-#   issues:
-#     types:
-#       - closed
+on:
+  issues:
+    types:
+      - closed
 
 jobs:
   run_pipeline:
