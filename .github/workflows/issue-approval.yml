@@ -31,3 +31,6 @@ jobs:
         else
           echo "No action required for this comment."
         fi
+
+    - name: Install dependencies
+      run: npm install   
