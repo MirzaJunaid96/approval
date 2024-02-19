@@ -1,9 +1,14 @@
 name: Approval Test
 
-# on:
-#   issue_comment:
-#     types:
-#       - created
+on:
+  # issue_comment:
+  #   types:
+  #     - created
+      
+  issues:
+    types:
+      - closed
+
 
 jobs:
   run_pipeline:
