@@ -1,3 +1,4 @@
+User
 name: Issue approval Pipeline
 
 on:
@@ -31,19 +32,29 @@ jobs:
           last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
           echo "Last Comment Body: $last_comment_body"
           
-      - name: Run Pipeline
-        if: "contains(github.event.comment.body, 'approve')"
-        run: |
-          echo "Pipeline approved. Running the pipeline..."
-          # Add your pipeline execution command here
+           #if [[ "$last_comment_body" == *"approve"* ]]; 
+            if: contains(github.event.comment.body, 'approve')  then
+            echo "Pipeline approved. Running the pipeline..."
+            # Add your pipeline execution command here
+          elif [[ "$last_comment_body" == *"deny"* ]]; then
+            echo "Pipeline denied. Failing the pipeline."
+            exit 1
+          else
+            echo "No action required for this comment."
+            exit 0
+          fi
 
-      - name: Fail Pipeline on Deny
-        if: "contains(github.event.comment.body, 'deny')"
-        run: |
-          echo "Pipeline denied. Failing the pipeline."
-          exit 1
+      # - name: Run Pipeline
+      #   if: success()  # Only run if the comment was processed successfully
+      #   run: |
+      #     # Your pipeline steps go here
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: No Action Required
-        if: "contains(github.event.comment.body, 'approve') == false && contains(github.event.comment.body, 'deny') == false"
-        run: |
-          echo "No action required for this comment."
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+         node-version: 14
+
+      - name: Install dependencies
+        run: npm install
