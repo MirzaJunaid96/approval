@@ -1,9 +1,9 @@
 name: Issue approval Pipeline
 
-on:
-  issue_comment:
-    types:
-      - closed
+# on:
+#   issue_comment:
+#     types:
+#       - closed
 
 jobs:
   run_pipeline:
