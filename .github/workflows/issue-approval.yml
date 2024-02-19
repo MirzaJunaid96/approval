@@ -11,8 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Check if the comment is on a closed issue
-      run: |
+     - name: Check Approval Status
+       run: |
+          # Your script to check comments and determine approval/denial
+          # Set environment variable based on approval status
+          if [[ "$APPROVAL_STATUS" == "approve" ]]; then
+            export APPROVAL=true
+          else
+            export APPROVAL=false
+          fi
+
+     - name: Run Pipeline
+       if: env.APPROVAL == 'true'
+       run: |
+          # Your pipeline steps go here
+
+     - name: Fail Pipeline on Deny
+       if: env.APPROVAL != 'true'
+       run: exit 1
+     - name: Check if the comment is on a closed issue
+       run: |
         if [ "${{ github.event_name }}" == "issue_comment" ] && [ "${{ github.event.action }}" == "created" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
           echo "Issue is closed. Checking comment for approval or denial..."
         else
@@ -20,8 +38,8 @@ jobs:
           exit 0
         fi
 
-    - name: Check comment for approval or denial
-      run: |
+     - name: Check comment for approval or denial
+       run: |
         comment_body=$(jq -r .comment.body "${{ github.event_path }}")
         
         if [[ "$comment_body" == *"approve"* ]]; then
@@ -35,13 +53,13 @@ jobs:
           exit 0
         fi
 
-    - name: Checkout code
-      uses: actions/checkout@v2
+     - name: Checkout code
+       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
+     - name: Set up Node.js
+       uses: actions/setup-node@v3
+       with:
         node-version: 14
 
-    - name: Install dependencies
-      run: npm install
+     - name: Install dependencies
+       run: npm install
