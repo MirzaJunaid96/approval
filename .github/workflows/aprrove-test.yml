@@ -1,10 +1,10 @@
 name: HelloWorldPipeline
 
 on:
-  issues:
-    types:
-      - closed
-  workflow_dispatch:
+  # issues:
+  #   types:
+  #     - closed
+  # workflow_dispatch:
     inputs:
       environment:
         description: 'Environment to Deploy on'
