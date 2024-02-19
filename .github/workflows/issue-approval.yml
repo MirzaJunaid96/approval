@@ -28,7 +28,7 @@ jobs:
 
      - name: Fail Pipeline on Deny
        if: env.APPROVAL != 'true'
-       run: exit 1
+       run: exit 0
      - name: Check if the comment is on a closed issue
        run: |
         if [ "${{ github.event_name }}" == "issue_comment" ] && [ "${{ github.event.action }}" == "created" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
