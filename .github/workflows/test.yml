@@ -5,9 +5,9 @@ on:
   #   types:
   #     - created
       
-  issues:
-    types:
-      - closed
+  # issues:
+  #   types:
+  #     - closed
 
 
 jobs:
