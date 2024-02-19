@@ -26,15 +26,12 @@ jobs:
         run: |
           comment_body=$(jq -r .comment.body "${{ github.event_path }}")
           echo "Comment Body: $comment_body"
-
-          if [[ "$comment_body" =~ \bapprove\b ]]; then
-            echo "Pipeline approved. Running the pipeline..."
+  
+          if [[ "$comment_body" =~ \bcool\b ]]; then
+            echo "Cool! Proceeding with the pipeline..."
             # Add your pipeline execution command here
-          elif [[ "$comment_body" =~ \bdeny\b ]]; then
-            echo "Pipeline denied. Failing the pipeline."
-            exit 1
           else
-            echo "No action required for this comment."
+            echo "No action required for this comment or not using the approved keyword. Exiting..."
             exit 0
           fi
 
@@ -63,7 +60,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-         node-version: 14
+          node-version: 14
 
       - name: Install dependencies
         run: npm install
