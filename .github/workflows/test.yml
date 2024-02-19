@@ -1,9 +1,6 @@
 name: Approval Test
 
 on:
-  issues:
-    types:
-      - closed
   issue_comment:
     types:
       - created
