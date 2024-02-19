@@ -1,0 +1,33 @@
+name: Your Pipeline
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  run_pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check if the comment is on a closed issue
+      run: |
+        if [ "${{ github.event_name }}" == "issue_comment" ] && [ "${{ github.event.action }}" == "created" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
+          echo "Issue is closed. Checking comment for approval or denial..."
+        else
+          echo "Not a relevant event. Exiting..."
+          exit 0
+        fi
+    
+    - name: Check comment for approval or denial
+      run: |
+        comment_body=$(jq -r .comment.body "${{ github.event_path }}")
+        
+        if [[ "$comment_body" == *"approve"* ]]; then
+          echo "Pipeline approved. Running the pipeline..."
+          # Add your pipeline execution command here
+        elif [[ "$comment_body" == *"deny"* ]]; then
+          echo "Pipeline denied. Not running the pipeline."
+        else
+          echo "No action required for this comment."
+        fi
