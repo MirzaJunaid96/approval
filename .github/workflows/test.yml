@@ -41,13 +41,15 @@ jobs:
       - name: Run Pipeline
         if: success()  # Only run if the comment was processed successfully and approval received
         run: |
-          # Add additional conditions to check for specific approvals
-          # For example, you can use GitHub API to check if the required approvals are met
-          # If approvals are met, proceed with your pipeline steps
-          # If not, you can exit with an appropriate message or just exit 0 to skip the pipeline
+          # Check if required approvals are met using GitHub API
+          approvals=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                         "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}/reviews" | \
+                         jq '.[] | select(.state == "APPROVED")' | \
+                         jq length)
 
-          # Placeholder for checking approvals, replace with actual logic
-          if [ your_approval_check_logic ]; then
+          required_approvals=1  # Set the number of required approvals
+
+          if [ "$approvals" -ge "$required_approvals" ]; then
             echo "Required approvals met. Running the pipeline..."
             # Your pipeline steps go here
           else
