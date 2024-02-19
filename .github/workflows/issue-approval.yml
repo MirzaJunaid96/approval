@@ -4,7 +4,7 @@ on:
   issue_comment:
     types:
       - created
-  push:    
+  push:
 
 jobs:
   run_pipeline:
@@ -19,7 +19,7 @@ jobs:
           echo "Not a relevant event. Exiting..."
           exit 0
         fi
-    
+
     - name: Check comment for approval or denial
       run: |
         comment_body=$(jq -r .comment.body "${{ github.event_path }}")
@@ -29,9 +29,12 @@ jobs:
           # Add your pipeline execution command here
         elif [[ "$comment_body" == *"deny"* ]]; then
           echo "Pipeline denied. Not running the pipeline."
+          exit 0
         else
           echo "No action required for this comment."
+          exit 0
         fi
+
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -41,4 +44,4 @@ jobs:
         node-version: 14
 
     - name: Install dependencies
-      run: npm install   
+      run: npm install
