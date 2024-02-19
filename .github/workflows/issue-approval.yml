@@ -3,6 +3,9 @@ name: Issue approval Pipeline
 on:
   issue_comment:
     types:
+      - created
+  issues:
+    types:
       - closed
 
 jobs:
