@@ -34,7 +34,17 @@ jobs:
             exit 0
           fi
 
-      - name: Run Pipeline
-        if: success()  # Only run if the comment was processed successfully
-        run: |
-          # Your pipeline steps go here
+      # - name: Run Pipeline
+      #   if: success()  # Only run if the comment was processed successfully
+      #   run: |
+      #     # Your pipeline steps go here
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+         node-version: 14
+
+      - name: Install dependencies
+        run: npm install
