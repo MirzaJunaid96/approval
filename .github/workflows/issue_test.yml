@@ -1,4 +1,4 @@
-name: Issue approval Pipeline
+name: Issue approval Test
 
 on:
   issue_comment:
