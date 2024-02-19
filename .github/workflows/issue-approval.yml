@@ -11,6 +11,9 @@ jobs:
 
     steps:
       - name: Check if the comment is on a closed issue
+        env:
+          VARS_CONTEXT: ${{ toJson(vars) }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
           echo "$GITHUB_CONTEXT"
           comment_body=$(jq -r .comment.body "${{ github.event_path }}")
