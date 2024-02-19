@@ -3,6 +3,7 @@ name: Your Pipeline
 on:
   issue_comment:
     types:
+      - created
       - closed
 
 jobs:
