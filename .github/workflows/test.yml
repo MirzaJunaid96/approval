@@ -1,14 +1,9 @@
-name: Approval Test
+name: Issue approval Pipeline
 
 on:
-  # issue_comment:
-  #   types:
-  #     - created
-      
-  # issues:
-  #   types:
-  #     - closed
-
+  issues:
+    types:
+      - closed
 
 jobs:
   run_pipeline:
@@ -16,56 +11,48 @@ jobs:
 
     steps:
       - name: Check if the comment is on a closed issue
+        env:
+          VARS_CONTEXT: ${{ toJson(vars) }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
-          if [ "${{ github.event_name }}" == "issue_comment" ] && [ "${{ github.event.action }}" == "created" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
+          echo "$GITHUB_CONTEXT"
+          comment_body=$(jq -r .comment.body "${{ github.event_path }}")
+          echo $comment_body
+          if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "closed" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
             echo "Issue is closed. Checking comment for approval or denial..."
           else
             echo "Not a relevant event. Exiting..."
             exit 0
           fi
-
       - name: Check comment for approval or denial
         run: |
-          comment_body=$(jq -r .comment.body "${{ github.event_path }}")
-          echo "Comment Body: $comment_body"
-
-          if [[ "$comment_body" == *"approve"* ]]; then
-            echo "Pipeline approved. Running the pipeline..."
-            # Add your pipeline execution command here
-          elif [[ "$comment_body" == *"deny"* ]]; then
-            echo "Pipeline denied. Failing the pipeline."
-            exit 1
+          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
+          last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
+          echo "Last Comment Body: $last_comment_body"
+    
+          if [ "$last_comment_body" == "approve" ]; then
+          echo "Pipeline approved. Running the pipeline..."
+          # Add your pipeline execution command here
+          elif [ "$last_comment_body" == "deny" ]; then
+          echo "Pipeline denied. Failing the pipeline."
+          exit 1
           else
-            echo "No action required for this comment."
-            exit 0
+          echo "No action required for this comment."
+          exit 0
           fi
+          if: contains(github.event.comment.body, 'approve') && github.event.comment.body == 'approve'
 
-      - name: Run Pipeline
-        if: success()  # Only run if the comment was processed successfully and approval received
-        run: |
-          # Check if required approvals are met using GitHub API
-          approvals=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                         "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.issue.number }}/reviews" | \
-                         jq '.[] | select(.state == "APPROVED")' | \
-                         jq length)
-
-          required_approvals=2  # Set the number of required approvals
-
-          if [ "$approvals" -ge "$required_approvals" ]; then
-            echo "Required approvals met. Running the pipeline..."
-            # Your pipeline steps go here
-          else
-            echo "Required approvals not met. Exiting..."
-            exit 0
-          fi
-
+      # - name: Run Pipeline
+      #   if: success()  # Only run if the comment was processed successfully
+      #   run: |
+      #     # Your pipeline steps go here
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+         node-version: 14
 
       - name: Install dependencies
         run: npm install
