@@ -32,7 +32,8 @@ jobs:
           echo "Last Comment Body: $last_comment_body"
           
           # if [[ "$last_comment_body" == *"approve"* ]]; 
-           if: contains(github.event.comment.body, 'approve') then
+           # if: contains(github.event.comment.body, 'approve') 
+            if: contains($last_comment_body, 'approve')then
             echo "Pipeline approved. Running the pipeline..."
             # Add your pipeline execution command here
           elif [[ "$last_comment_body" == *"deny"* ]]; then
