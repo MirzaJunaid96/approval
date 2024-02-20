@@ -1,4 +1,4 @@
-name: Issue approval Pipeline
+name: tes
 
 on:
   issues:
