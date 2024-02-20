@@ -1,11 +1,11 @@
 name: Approved PR Workflow
 
-on:
-  pull_request:
-    types:
-      - review_requested
-      - review
-      - closed
+# on:
+#   pull_request:
+#     types:
+#       - review_requested
+#       - review
+#       - closed
 
 jobs:
   build:
