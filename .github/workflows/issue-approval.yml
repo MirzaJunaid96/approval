@@ -1,16 +1,19 @@
 name: Issue approval Pipeline
 
 on:
-  issues:
-    types:
-      - closed
-  issue_comment:
-    types: [created]    
+  # issues:
+  #   types:
+  #     - closed
+  pull_request:
+    types: 
+      - labled
+     
 
 jobs:
   run_pipeline:
     runs-on: ubuntu-latest
-    if: contains(github.event.comment.body, '/approve')
+    # if: contains(github.event.comment.body, '/approve')
+    if: ${{github.event.lablel.name == 'stage' || {{guthub.event.lable.name}} 'dev'
 
     steps:
       - name: Check if the comment is on a closed issue
@@ -58,5 +61,10 @@ jobs:
         with:
          node-version: 14
 
-      - name: Install dependencies
+      - name: Install dependencies stage
         run: npm install
+
+        if: github.event.lable.name == 'stage'
+      - name: Install dependencies dev
+        run: npm install  
+        if: github.event.lable.name == 'dev'
