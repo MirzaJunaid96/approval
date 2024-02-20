@@ -1,8 +1,8 @@
 name: pull request comment
 
 on:
-  issues:
-    types: closed
+  issue_comment:                                     
+    types: [created, edited, deleted]
 
 jobs:
    run_pipeline:
