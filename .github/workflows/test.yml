@@ -46,7 +46,9 @@ jobs:
           fi
 
       - name: Run Pipeline
-        if: success() && steps.check_approval.outputs.approval == 'true'  
+        if: success() && steps.check_approval.outputs.approval == 'true'
+        run: |
+          ls $(pwd)
       # - name: Run Pipeline
       #   if: success()  # Only run if the comment was processed successfully
       #   run: |
