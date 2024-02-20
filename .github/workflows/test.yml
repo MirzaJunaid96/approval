@@ -1,14 +1,15 @@
-name: pull request comment
+name: Issue approval Pipeline
 
-# on:
-#   issue_comment:                                     
-#     types: [created, edited, deleted]
+on:
+  issues:
+    types:
+      - closed    
+     
 
 jobs:
-   run_pipeline:
-    if: contains(github.event.issue.html_url, '/pull/')  # Check if the comment is associated with a pull request
+  run_pipeline:
     runs-on: ubuntu-latest
-
+ 
     steps:
       - name: Check if the comment is on a closed issue
         env:
@@ -23,18 +24,49 @@ jobs:
             echo "Issue is closed. Checking comment for approval or denial..."
           else
             echo "Not a relevant event. Exiting..."
-            exit 0
+            exit 1
           fi
+
       - name: Check comment for approval or denial
         run: |
           comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
           last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
-          echo "Last Comment Body: $last_comment_body"    
-      - name: say hello
-        if: contains(github.event.comment.body, '/support')   # Check if the comment contains the keyword
+          echo "Last Comment Body: $last_comment_body"          
+        
+          if [[ "$last_comment_body" == "approve" ]]; then
+            echo "Pipeline approved. Running the pipeline..."
+          elif [[ "$last_comment_body" == "deny" ]]; then
+            echo "Pipeline denied. Failing the pipeline."
+            exit 1
+          else
+            echo "Action not identified. Pipeline denied. Failing the pipeline."
+            exit 1
+          fi
+      # - name: Run Pipeline
+      #   if: success()  # Only run if the comment was processed successfully
+      #   run: |
+      #     # Your pipeline steps go here
+
+      - name: Install GitHub CLI
         run: |
-          echo say hello
-      - name: test
-        if: contains(github.event.comment.body, '/test')  # Check if the comment contains the keyword
+           sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+           sudo apt-add-repository -y https://cli.github.com/packages
+           sudo apt-get update
+           sudo apt-get install gh
+
+      - name: Get Issue Description
+        id: issue
         run: |
-          echo test
+          issue_number=#70
+          description=$(gh issue view $issue_number --json description -q '.description')
+          echo "::set-output name=description::$description"
+
+      
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v3
+      #   with:
+      #    node-version: 14 
+        
