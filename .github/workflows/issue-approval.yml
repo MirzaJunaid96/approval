@@ -27,6 +27,8 @@ jobs:
 
       - name: check comment
         if: contains(github.event.comment.body, '/approve')
+        run: |
+          echo say hello
      
       - name: Check comment for approval or denial
         run: |
