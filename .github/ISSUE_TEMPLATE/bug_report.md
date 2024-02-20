@@ -8,5 +8,5 @@ assignees: ''
 ---
 
 BRANCH: 
-VERSION:
-DEPLOYMENT_PATH:
+VERSION: 
+DEPLOYMENT_PATH: 
