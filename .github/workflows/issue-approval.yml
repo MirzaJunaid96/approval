@@ -8,6 +8,7 @@ on:
 jobs:
   run_pipeline:
     runs-on: ubuntu-latest
+    if: contains(github.event.comment.body, '/approve')
 
     steps:
       - name: Check if the comment is on a closed issue
@@ -25,10 +26,6 @@ jobs:
             exit 0
           fi
 
-      - name: check comment
-        if: contains(github.event.comment.body, '/approve')
-        run: |
-          echo say hello
      
       # - name: Check comment for approval or denial
       #   run: |
