@@ -4,6 +4,9 @@ on:
   issues:
     types:
       - closed
+  issue_comment:
+    types:
+      - created
 
 jobs:
   run_pipeline:
@@ -30,7 +33,8 @@ jobs:
           last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
           echo "Last Comment Body: $last_comment_body"
           
-          if [[ "$last_comment_body" == *"approve"* ]]; then
+          if: contains(github.event.comment.body, '/deploy') then
+          # if [[ "$last_comment_body" == *"approve"* ]]; then
             echo "Pipeline approved. Running the pipeline..."
             # Add your pipeline execution command here
           elif [[ "$last_comment_body" == *"deny"* ]]; then
