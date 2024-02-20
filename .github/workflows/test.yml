@@ -1,41 +1,59 @@
-name: ApproveOps
+name: test Pipeline
 
-# on:
-#   issue_comment:
-#     types: [created]
+on:
+  issues:
+    types:
+      - closed
 
 jobs:
-  approveops:
+  run_pipeline:
     runs-on: ubuntu-latest
-    if: contains(github.event.comment.body, '/approved')
-
-    outputs: 
-      approved: ${{ steps.check-approval.outputs.approved }}
 
     steps:
-      # - name: Get GitHub App Installation Token
-      #   id: get_installation_token
-      #   uses: tibdex/github-app-token@v1
-      #   with:
-      #     app_id: 170284
-      #     private_key: ${{ secrets.APP_PRIVATE_KEY }}
+      - name: Check if the comment is on a closed issue
+        env:
+          VARS_CONTEXT: ${{ toJson(vars) }}
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: |
+          ls $(pwd)
+          echo "$GITHUB_CONTEXT"
+          comment_body=$(jq -r .comment.body "${{ github.event_path }}")
+          echo $comment_body
+          if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "closed" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
+            echo "Issue is closed. Checking comment for approval or denial..."
+          else
+            echo "Not a relevant event. Exiting..."
+            exit 0
+          fi
 
-      - name: ApproveOps - Check Approval
-        id: check-approval
-        uses: joshjohanning/approveops@v2
+      - name: Check comment for approval or denial
+        id: check_approval
+        run: |
+          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
+          last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
+          echo "Last Comment Body: $last_comment_body"
+
+          if [[ "$last_comment_body" == *"approve"* ]]; then
+            echo "Pipeline approved. Setting approval status to true..."
+            echo "::set-output name=approval::true"
+          elif [[ "$last_comment_body" == *"deny"* ]]; then
+            echo "Pipeline denied. Setting approval status to false."
+            echo "::set-output name=approval::false"
+          else
+            echo "No action required for this comment. Setting approval status to false."
+            echo "::set-output name=approval::false"
+          fi
+
+      - name: Run Pipeline
+        if: success() && steps.check_approval.outputs.approval == 'true' # Only run if the comment was processed successfully and approval was received
+        run: |
+          # Your pipeline steps go here
+          ./run_pipeline.sh
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-          approve-command: '/approved'
-          # token: ${{ steps.get_installation_token.outputs.token }}
-          # team-name: ${{ env.approver_team_name }}
-          fail-if-approval-not-found: true
-          post-successful-approval-comment: true
-          successful-approval-comment: ':tada:  You were able to run the workflow because someone left an approval in the comments!! :tada:'
-
-  migration:
-    runs-on: ubuntu-latest
-    needs: approveops
-    if: ${{ needs.approveops.outputs.approved == 'true' }}
-
-    steps:
-      - name: Run Migration
-        run: echo "run migration!"
+          node-version: 14
