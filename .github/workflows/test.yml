@@ -44,11 +44,11 @@ jobs:
             echo "::set-output name=approval::false"
           fi
 
-      - name: Run Pipeline
-        if: success() && steps.check_approval.outputs.approval == 'true' # Only run if the comment was processed successfully and approval was received
-        run: |
-          # Your pipeline steps go here
-          ./run_pipeline.sh
+      # - name: Run Pipeline
+      #   if: success() && steps.check_approval.outputs.approval == 'true' # Only run if the comment was processed successfully and approval was received
+      #   run: |
+      #     # Your pipeline steps go here
+      #     ./run_pipeline.sh
 
       - name: Checkout code
         uses: actions/checkout@v2
