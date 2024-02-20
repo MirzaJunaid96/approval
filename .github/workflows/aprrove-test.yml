@@ -5,11 +5,11 @@ on:
   #   types:
   #     - closed
   # workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to Deploy on'
-        required: true
-        type: environment
+    # inputs:
+    #   environment:
+    #     description: 'Environment to Deploy on'
+    #     required: true
+    #     type: environment
 
 jobs:
   hello_world:
