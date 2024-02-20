@@ -6,7 +6,7 @@ on:
 
 jobs:
    run_pipeline:
-    # if: contains(github.event.issue.html_url, '/pull/')  # Check if the comment is associated with a pull request
+    if: contains(github.event.issue.html_url, '/pull/')  # Check if the comment is associated with a pull request
     runs-on: ubuntu-latest
 
     steps:
