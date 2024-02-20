@@ -1,9 +1,9 @@
 name: Issue approval Pipeline
 
-on:
-  issues:
-    types:
-      - closed    
+# on:
+#   issues:
+#     types:
+#       - closed    
      
 
 jobs:
