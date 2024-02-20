@@ -30,10 +30,9 @@ jobs:
       - name: Run Pipeline
         if: success()  # Only run if the comment was processed successfully
         run: |
-          # Check if approval was received
           if [ "${{ steps.Check comment for approval or denial.outputs.approval }}" == "true" ]; then
             # Run your pipeline steps here
-            ./run_pipeline.sh
+            # ./run_pipeline.sh
           else
             echo "Pipeline was not approved. Skipping pipeline execution."
           fi
