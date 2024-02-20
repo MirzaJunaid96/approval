@@ -6,15 +6,15 @@ on:
   #     - closed
   pull_request:
     types: 
-      - labled
+      - labeled
      
 
 jobs:
   run_pipeline:
     runs-on: ubuntu-latest
     # if: contains(github.event.comment.body, '/approve')
-    if: ${{github.event.lablel.name == 'stage' || {{guthub.event.lable.name}} 'dev'
-
+    if: ${{ github.event.label.name == 'stage' || github.event.label.name 'dev' }}
+ 
     steps:
       - name: Check if the comment is on a closed issue
         env:
