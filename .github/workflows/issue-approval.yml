@@ -30,11 +30,11 @@ jobs:
         run: |
           echo say hello
      
-      - name: Check comment for approval or denial
-        run: |
-          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
-          last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
-          echo "Last Comment Body: $last_comment_body"
+      # - name: Check comment for approval or denial
+      #   run: |
+      #     comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
+      #     last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
+      #     echo "Last Comment Body: $last_comment_body"
           
         
       #     if [[ "$last_comment_body" == *"approve"* ]]; then
