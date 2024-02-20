@@ -1,19 +1,14 @@
 name: Issue approval Pipeline
 
 on:
-  # issues:
-  #   types:
-  #     - closed
-  pull_request:
-    types: 
-      - labeled
+  issues:
+    types:
+      - closed    
      
 
 jobs:
   run_pipeline:
     runs-on: ubuntu-latest
-    # if: contains(github.event.comment.body, '/approve')
-    if: ${{ github.event.label.name == 'stage' || github.event.label.name == 'dev' }}
  
     steps:
       - name: Check if the comment is on a closed issue
@@ -32,23 +27,23 @@ jobs:
           fi
 
      
-      # - name: Check comment for approval or denial
-      #   run: |
-      #     comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
-      #     last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
-      #     echo "Last Comment Body: $last_comment_body"
+      - name: Check comment for approval or denial
+        run: |
+          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
+          last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
+          echo "Last Comment Body: $last_comment_body"
           
         
-      #     if [[ "$last_comment_body" == *"approve"* ]]; then
-      #       echo "Pipeline approved. Running the pipeline..."
-      #       # Add your pipeline execution command here
-      #     elif [[ "$last_comment_body" == *"deny"* ]]; then
-      #       echo "Pipeline denied. Failing the pipeline."
-      #       exit 1
-      #     else
-      #       echo "No action required for this comment."
-      #       exit 0
-      #     fi
+          if [[ "$last_comment_body" == *"approve"* ]]; then
+            echo "Pipeline approved. Running the pipeline..."
+            # Add your pipeline execution command here
+          elif [[ "$last_comment_body" == *"deny"* ]]; then
+            echo "Pipeline denied. Failing the pipeline."
+            exit 1
+          else
+            echo "No action required for this comment."
+            exit 0
+          fi
       # - name: Run Pipeline
       #   if: success()  # Only run if the comment was processed successfully
       #   run: |
@@ -60,11 +55,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
          node-version: 14
-
-      - name: Install dependencies stage
-        if: github.event.lable.name == 'stage'
-        run: npm install
-
         
       - name: Install dependencies dev
         if: github.event.lable.name == 'dev'
