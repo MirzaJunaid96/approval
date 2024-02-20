@@ -44,6 +44,9 @@ jobs:
             echo "No action required for this comment."
             exit 0
           fi
+
+      - name: Run Pipeline
+        if: success() && steps.check_approval.outputs.approval == 'true'  
       # - name: Run Pipeline
       #   if: success()  # Only run if the comment was processed successfully
       #   run: |
