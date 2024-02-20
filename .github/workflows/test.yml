@@ -2,7 +2,7 @@ name: pull request comment
 
 on:
   issues:
-    types: [closed]
+    types: closed
 
 jobs:
   job01:
