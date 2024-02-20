@@ -13,10 +13,11 @@ jobs:
   run_pipeline:
     runs-on: ubuntu-latest
     # if: contains(github.event.comment.body, '/approve')
-    if: ${{ github.event.label.name == 'stage' || github.event.label.name == 'dev' }}
+    # if: ${{ github.event.label.name == 'stage' || github.event.label.name == 'dev' }}
  
     steps:
       - name: Check if the comment is on a closed issue
+        if: ${{ github.event.label.name == 'stage' || github.event.label.name == 'dev' }}
         env:
           VARS_CONTEXT: ${{ toJson(vars) }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
