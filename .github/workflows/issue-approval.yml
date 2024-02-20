@@ -50,7 +50,7 @@ jobs:
       - name: Get Issue Description
         id: issue
         run: |
-          issue_number=69
+          issue_number=#69
           description=$(gh issue view $issue_number --json description -q '.description')
           echo "::set-output name=description::$description"
 
