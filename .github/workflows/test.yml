@@ -6,7 +6,7 @@ on:
 
 jobs:
    run_pipeline:
-    if: contains(github.event.issue.issue_url, '/pull/')  # Check if the comment is associated with a pull request
+    # if: contains(github.event.issue.html_url, '/pull/')  # Check if the comment is associated with a pull request
     runs-on: ubuntu-latest
 
     steps:
@@ -25,18 +25,16 @@ jobs:
             echo "Not a relevant event. Exiting..."
             exit 0
           fi
-
       - name: Check comment for approval or denial
         run: |
           comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
           last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
           echo "Last Comment Body: $last_comment_body"    
       - name: say hello
-        if: contains(github.event.comments_url, '/support')   # Check if the comment contains the keyword
+        if: contains(github.event.comment.body, '/support')   # Check if the comment contains the keyword
         run: |
           echo say hello
-
       - name: test
-        if: contains(github.event.comments_url, '/test')  # Check if the comment contains the keyword
+        if: contains(github.event.comment.body, '/test')  # Check if the comment contains the keyword
         run: |
           echo test
