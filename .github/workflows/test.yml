@@ -34,6 +34,8 @@ jobs:
           comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
           echo "Comments URL: $comments_url"
           # last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
+          comments=$(curl -s "${comments_url}" | jq '.')
+          echo "Comments: $comments"
           last_comment_body=$(echo "$GITHUB_CONTEXT" | jq -r '.event.issue.comments | last(.[]).body')
           echo "Last Comment Body: $last_comment_body"          
         
