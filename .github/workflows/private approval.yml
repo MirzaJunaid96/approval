@@ -15,16 +15,6 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
-
-      - name: Get issue comments
-        uses: octokit/request-action@v2.x
-        id: comments
-        with:
-          route: GET /repos/:owner/:repo/issues/:issue_number/comments
-          owner: MirzaJunaid96
-          repo: approval
-          issue_number: ${{ github.event.issue.number }}
-          GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
           
       - name: Check if the comment is on a closed issue
         run: |
