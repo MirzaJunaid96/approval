@@ -13,6 +13,7 @@ jobs:
     steps:
       - name: Check if the comment is on a closed issue
         env:
+          GITHUB_TOKEN: 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
           VARS_CONTEXT: ${{ toJson(vars) }}
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
