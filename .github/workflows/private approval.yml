@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
 
       - name: Get issue comments
         uses: octokit/request-action@v2.x
@@ -24,8 +24,8 @@ jobs:
           owner: MirzaJunaid96
           repo: approval
           issue_number: ${{ github.event.issue.number }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
+          
       - name: Check if the comment is on a closed issue
         run: |
           echo "Checking comments for approval or denial..."
