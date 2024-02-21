@@ -30,14 +30,12 @@ jobs:
           fi
 
       - name: Check comment for approval or denial
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "$GITHUB_CONTEXT" | jq . 
           comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
           echo "Comments URL: $comments_url"
-          # last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
-          comments=$(curl -s "${comments_url}" | jq '.')
-          echo "Comments: $comments"
-          last_comment_body=$(echo "$GITHUB_CONTEXT" | jq -r '.event.issue.comments_url | last(.[]).body')
+          last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
           echo "Last Comment Body: $last_comment_body"          
         
           if [[ "$last_comment_body" == "approve" ]]; then
@@ -45,14 +43,31 @@ jobs:
           elif [[ "$last_comment_body" == "deny" ]]; then
             echo "Pipeline denied. Failing the pipeline."
             exit 1
-          else
-            echo "Action not identified. Pipeline denied. Failing the pipeline."
-            exit 1
-          fi
-      # - name: Run Pipeline
-      #   if: success()  # Only run if the comment was processed successfully
+
+      # - name: Check comment for approval or denial
       #   run: |
-      #     # Your pipeline steps go here
+      #     echo "$GITHUB_CONTEXT" | jq . 
+      #     comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
+      #     echo "Comments URL: $comments_url"
+      #     # last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
+      #     comments=$(curl -s "${comments_url}" | jq '.')
+      #     echo "Comments: $comments"
+      #     last_comment_body=$(echo "$GITHUB_CONTEXT" | jq -r '.event.issue.comments_url | last(.[]).body')
+      #     echo "Last Comment Body: $last_comment_body"          
+        
+      #     if [[ "$last_comment_body" == "approve" ]]; then
+      #       echo "Pipeline approved. Running the pipeline..."
+      #     elif [[ "$last_comment_body" == "deny" ]]; then
+      #       echo "Pipeline denied. Failing the pipeline."
+      #       exit 1
+      #     else
+      #       echo "Action not identified. Pipeline denied. Failing the pipeline."
+      #       exit 1
+      #     fi
+      # # - name: Run Pipeline
+      # #   if: success()  # Only run if the comment was processed successfully
+      # #   run: |
+      # #     # Your pipeline steps go here
 
       - name: View issue information
         run: |
