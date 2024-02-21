@@ -35,7 +35,10 @@ jobs:
         run: |
           comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
           echo "Comments URL: $comments_url"
-          last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
+          
+          # Fetch comments and extract the body of the last comment
+          last_comment_body=$(curl -s "${comments_url}" | grep -oP '"body":.*?[^\\]",' | awk -F'"' '{print $4}' | tail -n 1)
+          
           echo "Last Comment Body: $last_comment_body"          
         
           if [[ "$last_comment_body" == "approve" ]]; then
@@ -43,6 +46,10 @@ jobs:
           elif [[ "$last_comment_body" == "deny" ]]; then
             echo "Pipeline denied. Failing the pipeline."
             exit 1
+          else
+            echo "Action not identified. Pipeline denied. Failing the pipeline."
+            exit 1
+          fi
 
       # - name: Check comment for approval or denial
       #   run: |
