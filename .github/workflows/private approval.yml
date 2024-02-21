@@ -21,10 +21,10 @@ jobs:
         id: comments
         with:
           route: GET /repos/:owner/:repo/issues/:issue_number/comments
-          owner: ${{ github.repository_owner }}
-          repo: ${{ github.repository }}
+          owner: MirzaJunaid96
+          repo: approval
           issue_number: ${{ github.event.issue.number }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
 
       - name: Check if the comment is on a closed issue
         run: |
@@ -51,8 +51,8 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+      # - name: Checkout code
+      #   uses: actions/checkout@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
