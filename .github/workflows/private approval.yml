@@ -48,6 +48,25 @@ jobs:
             echo "Action not identified. Pipeline denied. Failing the pipeline."
             exit 1
           fi
+
+      - name: Check comment for approval or denial
+        run: |
+          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
+          curl_output=$(curl -s "${comments_url}")
+          echo "Curl Output: $curl_output"
+          last_comment_body=$(echo "$curl_output" | jq -r '.[-1].body')
+          echo "Last Comment Body: $last_comment_body"
+
+           if [[ "$last_comment_body" == "approve" ]]; then
+            echo "Pipeline approved. Running the pipeline..."
+          elif [[ "$last_comment_body" == "deny" ]]; then
+            echo "Pipeline denied. Failing the pipeline."
+            exit 1
+          else
+            echo "Action not identified. Pipeline denied. Failing the pipeline."
+            exit 1
+          fi
+    
         
       - name: Checkout code
         uses: actions/checkout@v2
