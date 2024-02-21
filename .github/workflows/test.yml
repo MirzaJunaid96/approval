@@ -31,14 +31,9 @@ jobs:
 
       - name: Check comment for approval or denial
         env:
-          GITHUB_TOKEN: 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
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
-          echo "Comments URL: $comments_url"
-          
-          # Fetch comments and extract the body of the last comment
-          last_comment_body=$(curl -s "${comments_url}" | grep -oP '"body":.*?[^\\]",' | awk -F'"' '{print $4}' | tail -n 1)
-          
+          last_comment_body=$(echo "$GITHUB_CONTEXT" | jq -r '.event.issue.comments.body')
           echo "Last Comment Body: $last_comment_body"          
         
           if [[ "$last_comment_body" == "approve" ]]; then
