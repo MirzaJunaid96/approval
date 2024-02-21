@@ -18,9 +18,8 @@ jobs:
         run: |
           ls $(pwd)
           echo "$GITHUB_CONTEXT"
-          echo "$GITHUB_CONTEXT" | jq . 
           # comment_body=$(jq -r .comment.body "${{ github.event_path }}")
-          comment_body=$(jq -r .issue.comment.body "${{ github.event_path }}")
+          comment_body=$(jq -r .comment.body "${{ github.event_path }}")
           echo $comment_body
           if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "closed" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
             echo "Issue is closed. Checking comment for approval or denial..."
@@ -31,6 +30,7 @@ jobs:
 
       - name: Check comment for approval or denial
         run: |
+          echo "$GITHUB_CONTEXT" | jq . 
           comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
           last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
           echo "Last Comment Body: $last_comment_body"          
