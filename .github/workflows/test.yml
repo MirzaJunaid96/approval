@@ -31,7 +31,7 @@ jobs:
 
       - name: Check comment for approval or denial
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: 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
         run: |
           comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
           echo "Comments URL: $comments_url"
