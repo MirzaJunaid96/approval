@@ -3,61 +3,45 @@ name: private approval Pipeline
 on:
   issues:
     types:
-      - closed    
-     
+      - closed
 
 jobs:
   run_pipeline:
     runs-on: ubuntu-latest
- 
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
           GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
- 
+
+      - name: Get issue comments
+        uses: octokit/request-action@v2.x
+        id: comments
+        with:
+          route: GET /repos/:owner/:repo/issues/:issue_number/comments
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.repository }}
+          issue_number: ${{ github.event.issue.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Check if the comment is on a closed issue
-        env:
-          VARS_CONTEXT: ${{ toJson(vars) }}
-          GITHUB_CONTEXT: ${{ toJson(github) }}
         run: |
-          ls $(pwd)
-          echo "$GITHUB_CONTEXT"
-          comment_body=$(jq -r .comment.body "${{ github.event_path }}")
-          echo $comment_body
-          if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "closed" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
+          echo "Checking comments for approval or denial..."
+          if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "closed" ]; then
             echo "Issue is closed. Checking comment for approval or denial..."
           else
             echo "Not a relevant event. Exiting..."
             exit 1
           fi
 
-      # - name: Check comment for approval or denial
-      #   run: |
-      #     comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
-      #     last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
-      #     echo "Last Comment Body: $last_comment_body"          
-        
-      #     if [[ "$last_comment_body" == "approve" ]]; then
-      #       echo "Pipeline approved. Running the pipeline..."
-      #     elif [[ "$last_comment_body" == "deny" ]]; then
-      #       echo "Pipeline denied. Failing the pipeline."
-      #       exit 1
-      #     else
-      #       echo "Action not identified. Pipeline denied. Failing the pipeline."
-      #       exit 1
-      #     fi
-
       - name: Check comment for approval or denial
         run: |
-          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
-          curl_output=$(curl -s "${comments_url}")
-          echo "Curl Output: $curl_output"
-          last_comment_body=$(echo "$curl_output" | jq -r '.[-1].body')
+          last_comment_body=$(echo "${{ steps.comments.outputs.data }}" | jq -r '.[-1].body')
           echo "Last Comment Body: $last_comment_body"
 
-           if [[ "$last_comment_body" == "approve" ]]; then
+          if [[ "$last_comment_body" == "approve" ]]; then
             echo "Pipeline approved. Running the pipeline..."
           elif [[ "$last_comment_body" == "deny" ]]; then
             echo "Pipeline denied. Failing the pipeline."
@@ -66,12 +50,11 @@ jobs:
             echo "Action not identified. Pipeline denied. Failing the pipeline."
             exit 1
           fi
-    
-        
+
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-         node-version: 14 
+          node-version: 14
