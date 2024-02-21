@@ -18,7 +18,7 @@ jobs:
         run: |
           ls $(pwd)
           echo "$GITHUB_CONTEXT"
-          comment_body=$(jq -r .[]comment.body "${{ github.event_path }}")
+          comment_body=$(jq -r .[].comment.body "${{ github.event_path }}")
           echo $comment_body
           if [ "${{ github.event_name }}" == "issues" ] && [ "${{ github.event.action }}" == "closed" ] && [ "${{ github.event.issue.state }}" == "closed" ]; then
             echo "Issue is closed. Checking comment for approval or denial..."
