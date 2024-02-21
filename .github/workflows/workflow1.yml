@@ -1,0 +1,19 @@
+name: CallerWorkFlow
+
+on:
+  workflow_dispatch:
+    inputs: 
+      calledworkflow_name:
+        description: 'Called workflow Name for Triggering'
+        required: true
+        default: 'CalledWorkflow'
+      
+      CalledWorkflow_github_account:
+        description: 'GitHub Account Owner'
+        required: true
+        default: 'RekhuGopal'
+      
+      CalledWorkflow_repo_github:
+        description: 'GitHub Repository Name'
+        required: true
+        default: 'InvokeGitHubActionsCalled'
