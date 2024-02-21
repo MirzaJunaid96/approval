@@ -33,7 +33,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          last_comment_body=$(echo "$GITHUB_CONTEXT" | jq -r '.event.issue.comments.body')
+          last_comment_body=$(echo "$GITHUB_CONTEXT" | jq -r '.event.issue.comments')
           echo "Last Comment Body: $last_comment_body"          
         
           if [[ "$last_comment_body" == "approve" ]]; then
