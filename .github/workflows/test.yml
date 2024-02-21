@@ -31,7 +31,7 @@ jobs:
       - name: Check comment for approval or denial
         run: |
           echo "$GITHUB_CONTEXT" | jq . 
-          comments_url=$(jq -r '.event.issue.comments_url' "${{ github.event_path }}")
+          comments_url=$(jq -r '.repository.comments_url' "${{ github.event_path }}")
           echo "Comments URL: $comments_url"
           last_comment_body=$(curl -s "${comments_url}" | jq -r '.[-1].body')
           echo "Last Comment Body: $last_comment_body"          
