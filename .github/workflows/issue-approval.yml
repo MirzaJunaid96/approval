@@ -11,6 +11,12 @@ jobs:
     runs-on: ubuntu-latest
  
     steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
       - name: Check if the comment is on a closed issue
         env:
           VARS_CONTEXT: ${{ toJson(vars) }}
