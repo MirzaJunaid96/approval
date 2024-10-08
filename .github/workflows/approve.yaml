@@ -20,23 +20,7 @@ jobs:
             body="${{ github.event.issue.body }}"
             host="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=URL: ).*')"
             branch="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=BRANCH: ).*')"
-            urgency="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=URGENCY: ).*')"
-            request_by="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=REQUEST BY: ).*')"
-            slack_url="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=SLACK LINK: ).*')"
-            slack_channel_id=$(echo "$slack_url" | sed -E 's/https:\/\/leucinetech.slack.com\/archives\/([^\/]+)\/\w+/\1/')
-            ts=$(echo "$slack_url" | sed -E 's/https:\/\/leucinetech.slack.com\/archives\/[^/]+\/(\w+)$/\1/')            
-            ts=${ts:1}
-            sec=${ts:0:-6}
-            microsec=${ts: -6}
-            slack_thread_id="$sec.$microsec"
-            echo "host=$host" >> "$GITHUB_OUTPUT"
             echo "branch=$branch" >> $GITHUB_OUTPUT
-            echo "urgency=$urgency" >> $GITHUB_OUTPUT
-            echo "request_by=$request_by" >> $GITHUB_OUTPUT
-            echo "slack_url=$slack_url" >> "$GITHUB_OUTPUT"
-            echo "slack_channel_id=$slack_channel_id" >> "$GITHUB_OUTPUT"
-            echo "slack_thread_id=$slack_thread_id" >> "$GITHUB_OUTPUT"
-            echo $slack_thread_id
             
       - name: Check for approval state
         id: check-comment
