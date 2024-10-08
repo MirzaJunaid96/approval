@@ -1,0 +1,73 @@
+name: Issue Pipeline
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:       
+  CD:
+    runs-on: ubuntu-latest   
+    steps:
+
+      # Checkout Code: Uses actions/checkout@v2 action to download the repository code.Fetch depth limited to 1 for faster execution.
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Extract
+        id: extract
+        run: |
+            body="${{ github.event.issue.body }}"
+            host="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=URL: ).*')"
+            branch="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=BRANCH: ).*')"
+            urgency="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=URGENCY: ).*')"
+            request_by="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=REQUEST BY: ).*')"
+            slack_url="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=SLACK LINK: ).*')"
+            slack_channel_id=$(echo "$slack_url" | sed -E 's/https:\/\/leucinetech.slack.com\/archives\/([^\/]+)\/\w+/\1/')
+            ts=$(echo "$slack_url" | sed -E 's/https:\/\/leucinetech.slack.com\/archives\/[^/]+\/(\w+)$/\1/')            
+            ts=${ts:1}
+            sec=${ts:0:-6}
+            microsec=${ts: -6}
+            slack_thread_id="$sec.$microsec"
+            echo "host=$host" >> "$GITHUB_OUTPUT"
+            echo "branch=$branch" >> $GITHUB_OUTPUT
+            echo "urgency=$urgency" >> $GITHUB_OUTPUT
+            echo "request_by=$request_by" >> $GITHUB_OUTPUT
+            echo "slack_url=$slack_url" >> "$GITHUB_OUTPUT"
+            echo "slack_channel_id=$slack_channel_id" >> "$GITHUB_OUTPUT"
+            echo "slack_thread_id=$slack_thread_id" >> "$GITHUB_OUTPUT"
+            echo $slack_thread_id
+            
+      - name: Check for approval state
+        id: check-comment
+        run: |
+          echo "${{ github.event_path }}"
+          comments_url=$(jq -r '.issue.comments_url' "${{ github.event_path }}")
+          last_comment_body=$(curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $comments_url | jq -r '.[-1].body')
+          echo "Last Comment Body: $last_comment_body"
+          if [[ "$last_comment_body" == "APPROVE"* ]]; then
+            echo "Pipeline approved. Running the pipeline..."
+          elif [[ "$last_comment_body" == "DENY"* ]]; then
+            echo "Pipeline denied. Failing the pipeline."
+            reason=$(echo "${last_comment_body}" | sed 's/DENY//g')
+            reason="Your request has been denied: $reason"
+            echo "reason=$reason" >> "$GITHUB_ENV"
+            echo "trigger=DENY" >> "$GITHUB_ENV"
+            exit 1
+            # curl -X POST "https://slack.com/api/chat.postMessage" \
+            # -H "Authorization: Bearer xoxb-295440632114-2597456177377-nrfw6X4HS5qFP9U3x4X3kJaz" \
+            # -H "Content-Type: application/json" \
+            # -d "{\"channel\":\"${{ steps.extract.outputs.slack_channel_id }}\",\"thread_ts\":\"${{ steps.extract.outputs.slack_thread_id }}\",\"text\":\"$reason\"}"
+          
+          else
+            echo "Action not identified. Pipeline denied. Failing the pipeline."
+            exit 1
+          fi 
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+         node-version: 14
