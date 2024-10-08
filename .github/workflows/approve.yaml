@@ -14,13 +14,13 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Extract
-        id: extract
-        run: |
-            body="${{ github.event.issue.body }}"
-            host="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=URL: ).*')"
-            branch="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=BRANCH: ).*')"
-            echo "branch=$branch" >> $GITHUB_OUTPUT
+      # - name: Extract
+      #   id: extract
+      #   run: |
+      #       body="${{ github.event.issue.body }}"
+      #       host="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=URL: ).*')"
+      #       branch="$(echo "${{ github.event.issue.body }}" | grep -oP '(?<=BRANCH: ).*')"
+      #       echo "branch=$branch" >> $GITHUB_OUTPUT
             
       - name: Check for approval state
         id: check-comment
